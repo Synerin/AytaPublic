@@ -1,4 +1,4 @@
-﻿using DiscordAyta.Models;
+using DiscordAyta.Models;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
@@ -106,11 +106,25 @@ namespace DiscordAyta.Commands
                     Card cardObject = (Card)modelObject;
 
                     // Gather the high-quality PNG URI from our parsed Card object
-                    string imageUri = cardObject.ImageUris["png"].OriginalString;
+                    // Single-sided cards will have null CardFaces, while double-sided cards will not
+                    if (cardObject.CardFaces == null)
+                    {
+                        string imageUri = cardObject.ImageUris["png"].OriginalString;
 
-                    imageUris.Add(imageUri);
+                        imageUris.Add(imageUri);
+                    }
+                    else
+                    {
+                        // Get the PNG URI from each CardFace
+                        foreach (CardFace cardFace in cardObject.CardFaces)
+                        {
+                            string imageUri = cardFace.ImageUris["png"].OriginalString;
+
+                            imageUris.Add(imageUri);
+                        }
+                    }
                 }
-                else if(modelObject.Object == "error")
+                else if (modelObject.Object == "error")
                 {
                     // Convert the Magic Model object once again into an Error
                     Error errorObject = (Error)modelObject;
